@@ -51,7 +51,7 @@ def printMenu():
     print("Bienvenido")
     print("1- Inicializar Analizador")
     print("2- Cargar información de accidentes")
-    print("3- Requerimento 1")
+    print("3- Conocer accidentes en una fecha especicifica")
     print("4- Requerimento 2")
     print("0- Salir")
     print("*******************************************")
@@ -74,7 +74,7 @@ while True:
         print("\nCargando información de accidentes ....")
         controller.loadData(cont, AccidentsFile)
         #print (cont['accidents']['first']["info"]) 
-        print('Crimenes cargados: ' + str(controller.crimesSize(cont)))
+        print('Acidentes cargados: ' + str(controller.crimesSize(cont)))
         print('Altura del arbol: ' + str(controller.indexHeight(cont)))
         print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
         print('Menor Llave: ' + str(controller.minKey(cont)))
@@ -82,9 +82,11 @@ while True:
         
 
     elif int(inputs[0]) == 3:
-        print("\nBuscando crimenes en un rango de fechas: ")
-
-
+        print("\nBuscando crimenes en una fecha especifica: ")
+        date = input("Escriba la fecha en formato (AAAA-MM-DD): ")
+        accidents = controller.getAccidentsByDate(cont,date)
+        print (("El numero de accidentes ocurridos en {} son {}".format(date,accidents)))
+        
     elif int(inputs[0]) == 4:
         print("\nRequerimiento No 1 del reto 3: ")
 

@@ -65,10 +65,13 @@ def loadData(analyzer, accidentsfile):
                                 delimiter=",")
     for EachAccident in input_file:
         model.AddAnAccident(analyzer, EachAccident)
-    
     return analyzer
     
-    
+#Funciones Requerimientos 
+def getAccidentsByDate (analizer,date):
+    date =  datetime.datetime.strptime(date, '%Y-%m-%d')
+    return  model.getAccidentsByDate(analizer,date.date())
+
 
 
 # =================================

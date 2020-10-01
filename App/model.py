@@ -95,10 +95,16 @@ def updateDateIndex(map, EachAccident):
         om.put(map, AccidentDate.date(), datentry)
     else:
         datentry = me.getValue(entry)
+    addDate(datentry,EachAccident)
     #addDateIndex(datentry, crime)
     return map
 
-
+def addDate(datentry,accident):
+    """
+    Agrega un la fecha de un accidente
+    """
+    lst = datentry['lstAccidents']
+    lt.addLast(lst,accident)
 
 def newDataEntry(accident):
     """
@@ -113,7 +119,6 @@ def newDataEntry(accident):
                                      comparefunction=CompareAccidentsState)
     entry['lstAccidents'] = lt.newList('SINGLE_LINKED', compareDates)
     return entry
-
 
 
 
@@ -158,7 +163,17 @@ def maxKey(analyzer):
     return om.maxKey(analyzer['dateIndex'])
 
 
+# ==============================
+# Funciones de Requerimientos
+# ==============================
 
+def getAccidentsByDate(analyzer,date):
+    accident = om.get(analyzer["dateIndex"],date)
+    lst =  me.getValue(accident)
+    lst = lst['lstAccidents']
+    accidents = lt.size(lst)
+    return accidents
+    
 
 
 # ==============================
