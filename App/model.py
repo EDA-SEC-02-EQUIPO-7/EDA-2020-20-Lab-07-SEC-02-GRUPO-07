@@ -53,7 +53,7 @@ def newAnalyzer():
                 }
 
     analyzer['accidents'] = lt.newList('SINGLE_LINKED', compareIds) #Creo que sería mejor array, pero si trabajamos con todos los datos son > 1 millon, entonces perdimos
-    analyzer['dateIndex'] = om.newMap(omaptype='BST',
+    analyzer['dateIndex'] = om.newMap(omaptype='RBT',
                                       comparefunction=compareDates)
     return analyzer
 
