@@ -39,8 +39,10 @@ operación seleccionada.
 
 
 #AccidentsFile = "us_accidents_small.csv"
-AccidentsFile = "us_accidents_dis_2016.csv"
-
+AccidentsFile1 = "us_accidents_dis_2016.csv"
+AccidentsFile2 = "us_accidents_dis_2017.csv"
+AccidentsFile3 = "us_accidents_dis_2018.csv"
+AccidentsFile4 = "us_accidents_dis_2019.csv"
 # ___________________________________________________
 #  Menu principal
 # ___________________________________________________
@@ -73,7 +75,7 @@ while True:
 
     elif int(inputs[0]) == 2:
         print("\nCargando información de accidentes ....")
-        controller.loadData(cont, AccidentsFile)
+        controller.loadData(cont, AccidentsFile1, AccidentsFile2, AccidentsFile3, AccidentsFile4)
         #print (cont['accidents']['first']["info"]) 
         print('Acidentes cargados: ' + str(controller.crimesSize(cont)))
         print('Altura del arbol: ' + str(controller.indexHeight(cont)))
@@ -89,7 +91,7 @@ while True:
         print (("El numero de accidentes ocurridos en {} son {}".format(date,accidents)))
         
     elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 1 del reto 3: ")
+        print("\nRequerimiento No 2 del reto 3: ")
 
     else:
         sys.exit(0)

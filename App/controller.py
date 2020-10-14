@@ -55,16 +55,38 @@ def init():
 
 
 
-def loadData(analyzer, accidentsfile):
+def loadData(analyzer, accidentsfile1, accidentsfile2, accidentsfile3, accidentsfile4):
     """
     Carga los datos de los archivos CSV en el modelo
     """
 
-    accidentsfile = cf.data_dir + accidentsfile
+    accidentsfile = cf.data_dir + accidentsfile1
     input_file = csv.DictReader(open(accidentsfile, encoding="utf-8"),
                                 delimiter=",")
     for EachAccident in input_file:
         model.AddAnAccident(analyzer, EachAccident)
+    print("1")
+
+    accidentsfile = cf.data_dir + accidentsfile2
+    input_file = csv.DictReader(open(accidentsfile, encoding="utf-8"),
+                                delimiter=",")
+    for EachAccident in input_file:
+        model.AddAnAccident(analyzer, EachAccident)
+    print("2")
+
+    accidentsfile = cf.data_dir + accidentsfile3
+    input_file = csv.DictReader(open(accidentsfile, encoding="utf-8"),
+                                delimiter=",")
+    for EachAccident in input_file:
+        model.AddAnAccident(analyzer, EachAccident)
+    print("3")
+
+    accidentsfile = cf.data_dir + accidentsfile4
+    input_file = csv.DictReader(open(accidentsfile, encoding="utf-8"),
+                                delimiter=",")
+    for EachAccident in input_file:
+        model.AddAnAccident(analyzer, EachAccident)   
+    print("4")
     return analyzer
     
 #Funciones Requerimientos 
