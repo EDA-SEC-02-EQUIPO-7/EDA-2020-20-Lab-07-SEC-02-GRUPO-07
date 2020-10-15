@@ -38,11 +38,8 @@ operación seleccionada.
 # ___________________________________________________
 
 
-#AccidentsFile = "us_accidents_small.csv"
-AccidentsFile1 = "us_accidents_dis_2016.csv"
-AccidentsFile2 = "us_accidents_dis_2017.csv"
-AccidentsFile3 = "us_accidents_dis_2018.csv"
-AccidentsFile4 = "us_accidents_dis_2019.csv"
+AccidentsFile = "us_accidents_small.csv"
+
 # ___________________________________________________
 #  Menu principal
 # ___________________________________________________
@@ -56,6 +53,8 @@ def printMenu():
     print("2- Cargar información de accidentes")
     print("3- Conocer accidentes en una fecha especicifica")
     print("4- Requerimento 2")
+    print("5- Requerimento 3")
+    print("6- Conocer el estado con más accidentes en un rango de fechas")
     print("0- Salir")
     print("*******************************************")
 
@@ -75,7 +74,7 @@ while True:
 
     elif int(inputs[0]) == 2:
         print("\nCargando información de accidentes ....")
-        controller.loadData(cont, AccidentsFile1, AccidentsFile2, AccidentsFile3, AccidentsFile4)
+        controller.loadData(cont, AccidentsFile)
         #print (cont['accidents']['first']["info"]) 
         print('Acidentes cargados: ' + str(controller.crimesSize(cont)))
         print('Altura del arbol: ' + str(controller.indexHeight(cont)))
@@ -85,13 +84,27 @@ while True:
         
 
     elif int(inputs[0]) == 3:
+        print("\nBuscando accidentes en una fecha especifica: ")
+        date = input("Escriba la fecha en formato (AAAA-MM-DD): ")
+        accidents = controller.getAccidentsByDate(cont,date)
+        print (("El numero de accidentes ocurridos en {} son {}".format(date,accidents)))
+        
+    elif int(inputs[0]) == 3:
         print("\nBuscando crimenes en una fecha especifica: ")
         date = input("Escriba la fecha en formato (AAAA-MM-DD): ")
         accidents = controller.getAccidentsByDate(cont,date)
         print (("El numero de accidentes ocurridos en {} son {}".format(date,accidents)))
         
     elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 2 del reto 3: ")
+        print("\nRequerimiento No 1 del reto 3: ")
+
+    elif int(inputs[0]) == 6:
+        print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
+        initialDate = input("Escriba la fecha inicial en formato (AAAA-MM-DD): ")
+        finalDate = input("Escriba la fecha final en formato (AAAA-MM-DD): ")
+        accidents = controller.getAccidentsByState(cont,initialDate,finalDate)
+        print (("El estado con el mayor numero de accidentes ocurridos entre {} y {} son {}".format(initialDate,finalDate,accidents)))
+
 
     else:
         sys.exit(0)

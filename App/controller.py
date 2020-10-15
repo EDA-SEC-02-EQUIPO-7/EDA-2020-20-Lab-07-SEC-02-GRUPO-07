@@ -37,14 +37,12 @@ recae sobre el controlador.
 #  Inicializacion del catalogo
 # ___________________________________________________
 
-
 def init():
     """
     Llama la funcion de inicializacion del modelo.
     """
     analyzer = model.newAnalyzer()
     return analyzer
-
 
 
 # ___________________________________________________
@@ -54,39 +52,16 @@ def init():
 
 
 
-
-def loadData(analyzer, accidentsfile1, accidentsfile2, accidentsfile3, accidentsfile4):
+def loadData(analyzer, accidentsfile):
     """
     Carga los datos de los archivos CSV en el modelo
     """
 
-    accidentsfile = cf.data_dir + accidentsfile1
+    accidentsfile = cf.data_dir + accidentsfile
     input_file = csv.DictReader(open(accidentsfile, encoding="utf-8"),
                                 delimiter=",")
     for EachAccident in input_file:
         model.AddAnAccident(analyzer, EachAccident)
-    print("1")
-
-    accidentsfile = cf.data_dir + accidentsfile2
-    input_file = csv.DictReader(open(accidentsfile, encoding="utf-8"),
-                                delimiter=",")
-    for EachAccident in input_file:
-        model.AddAnAccident(analyzer, EachAccident)
-    print("2")
-
-    accidentsfile = cf.data_dir + accidentsfile3
-    input_file = csv.DictReader(open(accidentsfile, encoding="utf-8"),
-                                delimiter=",")
-    for EachAccident in input_file:
-        model.AddAnAccident(analyzer, EachAccident)
-    print("3")
-
-    accidentsfile = cf.data_dir + accidentsfile4
-    input_file = csv.DictReader(open(accidentsfile, encoding="utf-8"),
-                                delimiter=",")
-    for EachAccident in input_file:
-        model.AddAnAccident(analyzer, EachAccident)   
-    print("4")
     return analyzer
     
 #Funciones Requerimientos 
@@ -94,6 +69,10 @@ def getAccidentsByDate (analizer,date):
     date =  datetime.datetime.strptime(date, '%Y-%m-%d')
     return  model.getAccidentsByDate(analizer,date.date())
 
+def getAccidentsByState (analizer,inicialDate, finalDate):
+    inicialDate = datetime.datetime.strptime (inicialDate, '%Y-%m-%d' )
+    finalDate = datetime.datetime.strptime (finalDate, '%Y-%m-%d' )
+    return model.getAccidentsByState (analizer,inicialDate.date(),finalDate.date())
 
 
 # =================================
@@ -108,13 +87,11 @@ def crimesSize(analyzer):
     """
     return model.crimesSize(analyzer)
 
-
 def indexHeight(analyzer):
     """
     Altura del indice (arbol)
     """
     return model.indexHeight(analyzer)
-
 
 def indexSize(analyzer):
     """
@@ -122,16 +99,15 @@ def indexSize(analyzer):
     """
     return model.indexSize(analyzer)
 
-
 def minKey(analyzer):
     """
     La menor llave del arbol
     """
     return model.minKey(analyzer)
 
-
 def maxKey(analyzer):
     """
     La mayor llave del arbol
     """
     return model.maxKey(analyzer)
+

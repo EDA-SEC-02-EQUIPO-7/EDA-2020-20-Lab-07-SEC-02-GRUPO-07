@@ -23,6 +23,7 @@ import config
 from DISClib.ADT import list as lt
 from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
+from DISClib.DataStructures import listiterator as it
 from DISClib.ADT import map as m
 import datetime
 assert config
@@ -31,13 +32,11 @@ assert config
 En este archivo definimos los TADs que vamos a usar,
 es decir contiene los modelos con los datos en memoria
 
-
 """
 
 # -----------------------------------------------------
 # API del TAD Catalogo de accidentes
 # -----------------------------------------------------
-
 
 def newAnalyzer():
     """ Inicializa el analizador
@@ -53,19 +52,17 @@ def newAnalyzer():
                 }
 
     analyzer['accidents'] = lt.newList('SINGLE_LINKED', compareIds) #Creo que sería mejor array, pero si trabajamos con todos los datos son > 1 millon, entonces perdimos
-    analyzer['dateIndex'] = om.newMap(omaptype='RBT',
+    analyzer['dateIndex'] = om.newMap(omaptype='',
                                       comparefunction=compareDates)
     return analyzer
 
 
 
-
 #===============================================
 # Funciones para agregar informacion al catalogo
 # Funciones para agregar informacion al catalogo
 # Funciones para agregar informacion al catalogo
 #===============================================
-
 
 
 
@@ -75,7 +72,6 @@ def AddAnAccident(analyzer, EachAccident):
     lt.addLast(analyzer['accidents'], EachAccident)
     updateDateIndex(analyzer['dateIndex'], EachAccident)
     return analyzer
-
 
 
 def updateDateIndex(map, EachAccident):
@@ -96,40 +92,57 @@ def updateDateIndex(map, EachAccident):
     else:
         datentry = me.getValue(entry)
     addDate(datentry,EachAccident)
-    #addDateIndex(datentry, crime)
+    # Por cada accidente que agrega se acualiza el estado
+    # Para hacer mas facil la busqueda del Req 4 
+    lstAccidents = m.get(datentry['StateIndex'],EachAccident["State"])
+    lstAccidents = me.getValue(lstAccidents)
+    mayor = lt.size(lstAccidents)
+    comparador = 0
+    if mayor > comparador:
+        datentry["Mayor"] = EachAccident["State"]
+        comparador = mayor
     return map
 
 def addDate(datentry,accident):
     """
-    Agrega un la fecha de un accidente
+    Agrega un la fecha de un accidente y su ID al igual que un accidente 
+    a la lista por estados
     """
     lst = datentry['lstAccidents']
-    lt.addLast(lst,accident)
+    lt.addLast(lst,accident["ID"])
+    existe = m.get(datentry['StateIndex'],accident["State"])
+    if existe is not None:
+        lst = me.getValue(existe)
+        lt.addLast(lst,accident['ID'])
+    else:
+        accidents = lt.newList('SINGLE_LINKED', compareDates)
+        m.put(datentry['StateIndex'],accident["State"],accidents)
+        lt.addLast(accidents,accident["ID"])
 
 def newDataEntry(accident):
     """
     Crea una entrada en el indice por fechas, es decir en el arbol
     binario.
-    Se crea el indice por estado, puede ser util para el requerimiento 5,
-    pero no necesaria, REVISAR
+    Se crea el indice por estado, por cada estado hay una lista 'SINGLE_LINKED'
+    que guarda el "ID" de cada accidente en ese estado 
     """
-    entry = {'StateIndex': None, 'lstAccidents': None}
-    entry['StateIndex'] = m.newMap(numelements=30,
+    entry = {'StateIndex': None, 'lstAccidents': None, "Mayor": None}
+    entry['StateIndex'] = m.newMap(numelements=60,
                                      maptype='PROBING',
                                      comparefunction=CompareAccidentsState)
+    accidents = lt.newList('SINGLE_LINKED', compareDates)
+    m.put(entry['StateIndex'],accident["State"],accidents)
     entry['lstAccidents'] = lt.newList('SINGLE_LINKED', compareDates)
     return entry
 
 
 
 
-
 # ==============================
 # Funciones de consulta RAPIDA
 # Funciones de consulta RAPIDA
 # Funciones de consulta RAPIDA
 # ==============================
-
 
 
 def crimesSize(analyzer):
@@ -138,30 +151,25 @@ def crimesSize(analyzer):
     """
     return lt.size(analyzer['accidents'])
 
-
 def indexHeight(analyzer):
     """
     """
     return om.height(analyzer['dateIndex'])
-
 
 def indexSize(analyzer):
     """
     """
     return om.size(analyzer['dateIndex'])
 
-
 def minKey(analyzer):
     """
     """
     return om.minKey(analyzer['dateIndex'])
 
-
 def maxKey(analyzer):
     """
     """
     return om.maxKey(analyzer['dateIndex'])
-
 
 # ==============================
 # Funciones de Requerimientos
@@ -174,12 +182,26 @@ def getAccidentsByDate(analyzer,date):
     accidents = lt.size(lst)
     return accidents
     
-
+def getAccidentsByState(analyzer,initialDate,finalDate):
+    accidents = om.values(analyzer['dateIndex'],initialDate,finalDate)
+    lstiterator = it.newIterator(accidents)
+    state = None
+    comparador = 0
+    while (it.hasNext(lstiterator)):
+        eachdate = it.next(lstiterator)
+        statename = eachdate["Mayor"]
+        lststate = m.get(eachdate["StateIndex"],statename)
+        lststate = me.getValue(lststate)
+        mayor = lt.size(lststate)
+        comparador = 0
+        if mayor > comparador:
+            state = statename
+            comparador = mayor
+    return state
 
 # ==============================
 # Funciones de Comparacion
 # ==============================
-
 
 def compareIds(id1, id2):
     """
@@ -191,7 +213,6 @@ def compareIds(id1, id2):
         return 1
     else:
         return -1
-
 
 
 def compareDates(date1, date2):
@@ -207,7 +228,6 @@ def compareDates(date1, date2):
         return -1
 
 
-
 def CompareAccidentsState(accident1, accident2):
     """
     Compara dos ids de libros, id es un identificador
@@ -220,4 +240,3 @@ def CompareAccidentsState(accident1, accident2):
         return 1
     else:
         return -1
-
