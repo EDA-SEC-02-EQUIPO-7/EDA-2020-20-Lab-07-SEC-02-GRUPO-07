@@ -109,15 +109,15 @@ def addDate(datentry,accident):
     a la lista por estados
     """
     lst = datentry['lstAccidents']
-    lt.addLast(lst,accident["ID"])
+    lt.addLast(lst,accident)#["ID"])
     existe = m.get(datentry['StateIndex'],accident["State"])
     if existe is not None:
         lst = me.getValue(existe)
-        lt.addLast(lst,accident['ID'])
+        lt.addLast(lst,accident)#['ID'])
     else:
         accidents = lt.newList('SINGLE_LINKED', compareDates)
         m.put(datentry['StateIndex'],accident["State"],accidents)
-        lt.addLast(accidents,accident["ID"])
+        lt.addLast(accidents,accident)#["ID"])
 
 def newDataEntry(accident):
     """
@@ -185,6 +185,7 @@ def getAccidentsByDate(analyzer,date):
 def getAccidentsByState(analyzer,initialDate,finalDate):
     accidents = om.values(analyzer['dateIndex'],initialDate,finalDate)
     lstiterator = it.newIterator(accidents)
+    print(accidents)
     state = None
     comparador = 0
     while (it.hasNext(lstiterator)):
@@ -198,6 +199,29 @@ def getAccidentsByState(analyzer,initialDate,finalDate):
             state = statename
             comparador = mayor
     return state
+
+
+#↓↓↓ Requerimiento 2 ↓↓↓
+def getAccidentsBefore(analyzer, initialDate, finalDate):
+
+    lst = om.values(analyzer['dateIndex'], initialDate, finalDate)
+    lstiterator = it.newIterator(lst)
+    Results = {}
+    totalAccidents = 0
+    Results["CantidadPorFecha"] = 0
+
+    while (it.hasNext(lstiterator)):
+        lstdate = it.next(lstiterator)
+        if lt.size(lstdate['lstAccidents']) > Results["CantidadPorFecha"]:
+            Results["CantidadPorFecha"] = lt.size(lstdate['lstAccidents'])
+            Results["FechaAccidentada"] = lstdate['lstAccidents']['first']['info']['Start_Time'][:10]
+
+        totalAccidents += lt.size(lstdate['lstAccidents'])
+
+    Results["totalAccidents"] = totalAccidents
+    
+    return Results
+
 
 # ==============================
 # Funciones de Comparacion

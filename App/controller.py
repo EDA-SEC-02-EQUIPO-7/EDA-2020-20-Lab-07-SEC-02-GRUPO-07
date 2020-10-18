@@ -64,7 +64,13 @@ def loadData(analyzer, accidentsfile):
         model.AddAnAccident(analyzer, EachAccident)
     return analyzer
     
+# =========================
 #Funciones Requerimientos 
+#Funciones Requerimientos 
+#Funciones Requerimientos 
+# =========================
+
+
 def getAccidentsByDate (analizer,date):
     date =  datetime.datetime.strptime(date, '%Y-%m-%d')
     return  model.getAccidentsByDate(analizer,date.date())
@@ -73,6 +79,12 @@ def getAccidentsByState (analizer,inicialDate, finalDate):
     inicialDate = datetime.datetime.strptime (inicialDate, '%Y-%m-%d' )
     finalDate = datetime.datetime.strptime (finalDate, '%Y-%m-%d' )
     return model.getAccidentsByState (analizer,inicialDate.date(),finalDate.date())
+
+#↓↓↓ Requerimiento 2 ↓↓↓
+def getAccidentsBefore(analyzer, initialDate, finalDate):
+    initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
+    finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
+    return model.getAccidentsBefore(analyzer, initialDate.date(), finalDate.date())
 
 
 # =================================

@@ -80,6 +80,7 @@ while True:
         print('Altura del arbol: ' + str(controller.indexHeight(cont)))
         print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
         print('Menor Llave: ' + str(controller.minKey(cont)))
+        menor=(str(controller.minKey(cont)))
         print('Mayor Llave: ' + str(controller.maxKey(cont)))
         
 
@@ -95,8 +96,13 @@ while True:
         accidents = controller.getAccidentsByDate(cont,date)
         print (("El numero de accidentes ocurridos en {} son {}".format(date,accidents)))
         
+    # ↓↓↓ Requerimiento 2 - Cristhian Perdomo ↓↓↓    
     elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 1 del reto 3: ")
+        print("\nPara esta búsqueda se conocerá el total de accidentes ocurridos antes de una fecha, así como la fecha que más accidentes ha reportado:")
+        PreviousTo = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
+        total = controller.getAccidentsBefore(cont, menor, PreviousTo)
+        print ("\nEl total de accidentes registrados antes de {} es: {}.\n*Durante este pediodo, la fecha que más registro accidentes fue {}, con {} en total." .format(PreviousTo, str(total["totalAccidents"]), str(total["FechaAccidentada"]), str(total["CantidadPorFecha"])))
+        
 
     elif int(inputs[0]) == 6:
         print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
