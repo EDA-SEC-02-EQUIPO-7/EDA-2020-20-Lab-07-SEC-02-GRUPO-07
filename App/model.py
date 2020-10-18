@@ -185,7 +185,6 @@ def getAccidentsByDate(analyzer,date):
 def getAccidentsByState(analyzer,initialDate,finalDate):
     accidents = om.values(analyzer['dateIndex'],initialDate,finalDate)
     lstiterator = it.newIterator(accidents)
-    print(accidents)
     state = None
     comparador = 0
     while (it.hasNext(lstiterator)):
@@ -219,7 +218,7 @@ def getAccidentsBefore(analyzer, initialDate, finalDate):
         totalAccidents += lt.size(lstdate['lstAccidents'])
 
     Results["totalAccidents"] = totalAccidents
-    
+
     return Results
 
 
