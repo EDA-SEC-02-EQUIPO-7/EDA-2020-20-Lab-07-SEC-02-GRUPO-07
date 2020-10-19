@@ -103,14 +103,19 @@ while True:
         PreviousTo = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
         total = controller.getAccidentsBefore(cont, menor, PreviousTo)
         print ("\nEl total de accidentes registrados antes de {} es: {}.\n*Durante este pediodo, la fecha que más registro accidentes fue {}, con {} en total." .format(PreviousTo, str(total["totalAccidents"]), str(total["FechaAccidentada"]), str(total["CantidadPorFecha"])))
-        
+    elif int(inputs[0]) == 5:
+        print("\nPara esta búsqueda se conocerá el total de accidentes ocurridos antes de una fecha, así como la fecha que más accidentes ha reportado:")
+        menor = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
+        PreviousTo = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
+        total = controller.getAccidentsRange(cont, menor, PreviousTo)
+        print(str(total["mayor"])+" "+total["category"])
 
     elif int(inputs[0]) == 6:
-        print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
+        print("\nBuscando accidentes en un rango de fechas: ")
         initialDate = input("Escriba la fecha inicial en formato (AAAA-MM-DD): ")
         finalDate = input("Escriba la fecha final en formato (AAAA-MM-DD): ")
         accidents = controller.getAccidentsByState(cont,initialDate,finalDate)
-        print (("El estado con el mayor numero de accidentes ocurridos entre {} y {} son {}".format(initialDate,finalDate,accidents)))
+        print ((accidents["mayor"]))
     elif int(inputs[0]) == 7:
         print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
         initialDate = input("Escriba la fecha inicial en formato (AAAA-MM-DD): ")

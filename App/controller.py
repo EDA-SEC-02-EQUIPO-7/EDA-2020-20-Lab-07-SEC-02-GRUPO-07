@@ -86,8 +86,10 @@ def getAccidentsBefore(analyzer, initialDate, finalDate):
     finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
     return model.getAccidentsBefore(analyzer, initialDate.date(), finalDate.date())
 
-
-
+def getAccidentsRange(analyzer, initialDate, finalDate):
+    initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
+    finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
+    return model.getAccidentsRange(analyzer, initialDate.date(), finalDate.date())
 # =================================
 #  Funciones para consultas RAPIDAS
 #  Funciones para consultas RAPIDAS

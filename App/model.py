@@ -73,7 +73,7 @@ def AddAnAccident(analyzer, EachAccident):
     """
     lt.addLast(analyzer['accidents'], EachAccident)
     updateDateIndex(analyzer['dateIndex'], EachAccident)
-    updateTimeIndex(analyzer["hourIndex"], EachAccident)
+    #updateTimeIndex(analyzer["hourIndex"], EachAccident)
     return analyzer
 
 
@@ -86,9 +86,9 @@ def updateDateIndex(map, EachAccident):
     Si no se encuentra creado un nodo para esa fecha en el arbol
     se crea y se actualiza el indice de tipos de accidentes
     """
-    occurreddate = str(EachAccident['Start_Time'] )
+    occurreddate =EachAccident['Start_Time'] 
     AccidentDate = datetime.datetime.strptime(occurreddate, '%Y-%m-%d %H:%M:%S')
-    entry = om.get(map, AccidentDate.time())
+    entry = om.get(map, AccidentDate.date())
     if entry is None:
         datentry = newDataEntry(EachAccident)
         om.put(map, AccidentDate.date(), datentry)
@@ -243,6 +243,51 @@ def getAccidentsBefore(analyzer, initialDate, finalDate):
 def getAccidentsbytime(analyzer,initial,final):
     return  None
 
+def getAccidentsRange(analyzer, keylo, keyhi):
+    rbt=analyzer['dateIndex']
+    values = {"list":None,
+                "map":None,
+                "mayor":0,
+                "category":""}
+    
+    values["list"]=lt.newList('SINGLELINKED', rbt['cmpfunction'])
+    values["map"]=m.newMap(numelements=10,
+                                     maptype='PROBING',
+                                     comparefunction=CompareAccidentsState)
+    values = valuesRange(rbt['root'], keylo, keyhi, values,
+                                rbt['cmpfunction'])
+    return values
+def valuesRange(root, keylo, keyhi, values, cmpfunction):
+    if (root is not None):
+        complo = cmpfunction(keylo, root['key'])
+        comphi = cmpfunction(keyhi, root['key'])
+        if (complo < 0):
+            valuesRange(root['left'], keylo, keyhi, values,
+                        cmpfunction)
+        if ((complo <= 0) and (comphi >= 0)):
+            lt.addLast(values["list"], root['value'])
+            lstiterator=it.newIterator(root["value"]["lstAccidents"])
+            while it.hasNext(lstiterator):
+                eachaccident=it.next(lstiterator)
+                print(eachaccident["Severity"])
+                exist=m.contains(values["map"],eachaccident["Severity"] )
+                print(exist)
+                if exist:
+                    entry=m.get(values["map"],eachaccident["Severity"])
+                    val=me.getValue(entry)
+                    m.put(values["map"],eachaccident["Severity"] ,val+1)
+                else:
+                    m.put(values["map"],eachaccident["Severity"] ,1)
+                entry=m.get(values["map"],eachaccident["Severity"])
+                par=me.getValue(entry)
+                if par>values["mayor"]:
+                    values["mayor"]=par
+                    values["category"]=me.getKey(entry)
+        if (comphi > 0):
+            valuesRange(root['right'], keylo, keyhi, values,
+                        cmpfunction)
+    return values
+    
 # ==============================
 # Funciones de Comparacion
 # ==============================
