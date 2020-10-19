@@ -54,6 +54,8 @@ def newAnalyzer():
     analyzer['accidents'] = lt.newList('SINGLE_LINKED', compareIds) #Creo que sería mejor array, pero si trabajamos con todos los datos son > 1 millon, entonces perdimos
     analyzer['dateIndex'] = om.newMap(omaptype='',
                                       comparefunction=compareDates)
+    analyzer["hourIndex"]= om.newMap(omaptype='',
+                                      comparefunction=compareHour)
     return analyzer
 
 
@@ -71,6 +73,7 @@ def AddAnAccident(analyzer, EachAccident):
     """
     lt.addLast(analyzer['accidents'], EachAccident)
     updateDateIndex(analyzer['dateIndex'], EachAccident)
+    updateTimeIndex(analyzer["hourIndex"], EachAccident)
     return analyzer
 
 
@@ -83,9 +86,9 @@ def updateDateIndex(map, EachAccident):
     Si no se encuentra creado un nodo para esa fecha en el arbol
     se crea y se actualiza el indice de tipos de accidentes
     """
-    occurreddate = EachAccident['Start_Time'] 
+    occurreddate = str(EachAccident['Start_Time'] )
     AccidentDate = datetime.datetime.strptime(occurreddate, '%Y-%m-%d %H:%M:%S')
-    entry = om.get(map, AccidentDate.date())
+    entry = om.get(map, AccidentDate.time())
     if entry is None:
         datentry = newDataEntry(EachAccident)
         om.put(map, AccidentDate.date(), datentry)
@@ -102,6 +105,22 @@ def updateDateIndex(map, EachAccident):
         datentry["Mayor"] = EachAccident["State"]
         comparador = mayor
     return map
+def updateTimeIndex(map,EachAccident):
+    """Si no se encuentra creado un nodo para esa Tiempos Hora Minuto en el arbol
+    se crea y se actualiza el indice de tipos de accidentes
+    """
+    occurreddate = EachAccident['Start_Time'] 
+    AccidentDate = datetime.datetime.strptime(occurreddate,  '%Y-%m-%d %H:%M:%S')
+    print(AccidentDate.time())
+    entry = om.get(map, AccidentDate.date())
+    if entry is None:
+        datentry = newDataEntry(EachAccident)
+        om.put(map, AccidentDate.date(), datentry)
+    else:
+        datentry = me.getValue(entry)
+    addDate(datentry,EachAccident)
+    return map
+
 
 def addDate(datentry,accident):
     """
@@ -220,7 +239,9 @@ def getAccidentsBefore(analyzer, initialDate, finalDate):
     Results["totalAccidents"] = totalAccidents
 
     return Results
-
+#requerimiento grupal
+def getAccidentsbytime(analyzer,initial,final):
+    return  None
 
 # ==============================
 # Funciones de Comparacion
@@ -249,6 +270,29 @@ def compareDates(date1, date2):
         return 1
     else:
         return -1
+def compareHour(hour1, hour2):
+    """
+    Compara dos ids de accidentes, id es un identificador
+    y entry una pareja llave-valor
+    """
+    if (hour1 == hour2):
+        return 0
+    elif (hour1 > hour2):
+        return 1
+    else:
+        return -1
+def compareminutes(min, hour):
+    if min >= 0 and min<15:
+        min=0
+    if min>=15 and min<30:
+        min=30
+    if min>=30 and min<45:
+        min=30
+    if min>=45 and min<=60:
+        min=0
+        #hour +=1
+    
+
 
 
 def CompareAccidentsState(accident1, accident2):
@@ -263,3 +307,5 @@ def CompareAccidentsState(accident1, accident2):
         return 1
     else:
         return -1
+
+    
