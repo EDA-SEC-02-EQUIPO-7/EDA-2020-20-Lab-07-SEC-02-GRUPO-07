@@ -95,15 +95,6 @@ def updateDateIndex(map, EachAccident):
     else:
         datentry = me.getValue(entry)
     addDate(datentry,EachAccident)
-    # Por cada accidente que agrega se acualiza el estado
-    # Para hacer mas facil la busqueda del Req 4 
-    lstAccidents = m.get(datentry['StateIndex'],EachAccident["State"])
-    lstAccidents = me.getValue(lstAccidents)
-    mayor = lt.size(lstAccidents)
-    comparador = 0
-    if mayor > comparador:
-        datentry["Mayor"] = EachAccident["State"]
-        comparador = mayor
     return map
 def updateTimeIndex(map,EachAccident):
     """Si no se encuentra creado un nodo para esa Tiempos Hora Minuto en el arbol
@@ -128,15 +119,15 @@ def addDate(datentry,accident):
     a la lista por estados
     """
     lst = datentry['lstAccidents']
-    lt.addLast(lst,accident)#["ID"])
+    lt.addLast(lst,accident)
     existe = m.get(datentry['StateIndex'],accident["State"])
     if existe is not None:
         lst = me.getValue(existe)
-        lt.addLast(lst,accident)#['ID'])
+        lt.addLast(lst,accident)
     else:
         accidents = lt.newList('SINGLE_LINKED', compareDates)
         m.put(datentry['StateIndex'],accident["State"],accidents)
-        lt.addLast(accidents,accident)#["ID"])
+        lt.addLast(accidents,accident)
 
 def newDataEntry(accident):
     """
@@ -145,7 +136,7 @@ def newDataEntry(accident):
     Se crea el indice por estado, por cada estado hay una lista 'SINGLE_LINKED'
     que guarda el "ID" de cada accidente en ese estado 
     """
-    entry = {'StateIndex': None, 'lstAccidents': None, "Mayor": None}
+    entry = {'StateIndex': None, 'lstAccidents': None, "occurreddate": accident['Start_Time']}
     entry['StateIndex'] = m.newMap(numelements=60,
                                      maptype='PROBING',
                                      comparefunction=CompareAccidentsState)
@@ -202,21 +193,51 @@ def getAccidentsByDate(analyzer,date):
     return accidents
     
 def getAccidentsByState(analyzer,initialDate,finalDate):
+    """ 
+    Crea un nuevo mapa para odenar los accidentes por estado aptovechando el ordenamiendo de Eachdate
+    Se usa un mapa para que al momento de necesita una estado especifico la operacion de busqueda sea de O(1)
+    a diferencia de otras estuccturas
+    Cada que revisa una fecha especifica revisa si esta es la que tiene mas accidentes
+    States es una lista que contiene todos los estados del archivo """
+    comparador = 0
+    comparadorDates = 0
+    mayorState = None
+    mayor = None
     accidents = om.values(analyzer['dateIndex'],initialDate,finalDate)
     lstiterator = it.newIterator(accidents)
-    state = None
-    comparador = 0
+    stateMap =  m.newMap(numelements=60,
+                                     maptype='PROBING',
+                                     comparefunction=CompareAccidentsState)
+    states = ["AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME","MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "RI", "SC", "SD","TN", "TX", "UT", "VA", "VT", "WA", "WI", "WV", "WY"]
+    for i in states:
+        m.put(stateMap,i,0)
     while (it.hasNext(lstiterator)):
         eachdate = it.next(lstiterator)
-        statename = eachdate["Mayor"]
-        lststate = m.get(eachdate["StateIndex"],statename)
-        lststate = me.getValue(lststate)
-        mayor = lt.size(lststate)
-        comparador = 0
-        if mayor > comparador:
-            state = statename
-            comparador = mayor
-    return state
+        stateMapDate = eachdate["StateIndex"]
+        accidents = eachdate['lstAccidents']
+        accidents = lt.size(accidents)
+        if accidents > comparadorDates:
+            comparadorDates = accidents
+            mayor = eachdate["occurreddate"]
+        stateList = m.keySet(stateMapDate)
+        stateIterator = it.newIterator(stateList)
+        while (it.hasNext(stateIterator)):
+            statename = it.next(stateIterator)
+            pairDate = m.get(stateMapDate,statename)
+            pair = m.get(stateMap,statename)
+            numberAccidents =  me.getValue(pairDate)
+            numberAccidents =  lt.size(numberAccidents)
+            updateAccidets = me.getValue(pair)
+            updateAccidets = updateAccidets + numberAccidents
+            m.put(stateMap,statename, updateAccidets)
+            if updateAccidets > comparador:
+                mayorState = statename
+                comparador = updateAccidets
+    return [mayor, mayorState]
+
+
+
+
 
 
 #↓↓↓ Requerimiento 2 ↓↓↓
