@@ -250,16 +250,19 @@ def getAccidentsBefore(analyzer, initialDate, finalDate):
     Results["CantidadPorFecha"] = 0
 
     while (it.hasNext(lstiterator)):
-        lstdate = it.next(lstiterator)
+        lstdate = it.next(lstiterator)      
         if lt.size(lstdate['lstAccidents']) > Results["CantidadPorFecha"]:
             Results["CantidadPorFecha"] = lt.size(lstdate['lstAccidents'])
-            Results["FechaAccidentada"] = lstdate['lstAccidents']['first']['info']['Start_Time'][:10]
+            Results["FechaAccidentada"] = lstdate['occurreddate'][:10]
 
         totalAccidents += lt.size(lstdate['lstAccidents'])
 
     Results["totalAccidents"] = totalAccidents
 
     return Results
+
+
+
 #requerimiento grupal
 def getAccidentsbytime(analyzer,initial,final):
     return  None

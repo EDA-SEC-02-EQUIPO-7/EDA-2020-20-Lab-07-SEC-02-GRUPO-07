@@ -81,6 +81,8 @@ def getAccidentsByState (analizer,inicialDate, finalDate):
     return model.getAccidentsByState (analizer,inicialDate.date(),finalDate.date())
 
 #↓↓↓ Requerimiento 2 ↓↓↓
+
+
 def getAccidentsBefore(analyzer, initialDate, finalDate):
     initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
     finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
