@@ -222,7 +222,7 @@ def valuesRangebono(root, keylo, keyhi, values,coord,distance):
         w=float(coord["lon"])
         if (root["key"]["lat"] > keylo):
             valuesRangebono(root['left'], keylo, keyhi, values,coord,distance)
-        if (haversine(z,y,w,x)<=distance):
+        if (haversine(z,y,w,x)<=distance and root["key"]["lat"] > keylo and root["key"]["lat"] < keyhi):
             print(haversine(z,y,w,x))
             print(root["key"])
             lt.addLast(values["list"],root["key"])
