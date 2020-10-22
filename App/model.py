@@ -19,6 +19,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  """
+from math import radians, cos, sin, asin, sqrt ,degrees,atan2
+
 import config
 from DISClib.ADT import list as lt
 from DISClib.ADT import orderedmap as om
@@ -56,6 +58,8 @@ def newAnalyzer():
                                       comparefunction=compareDates)
     analyzer["hourIndex"]= om.newMap(omaptype='',
                                       comparefunction=compareHour)
+    analyzer["coordIndex"]= om.newMap(omaptype='',
+                                      comparefunction=comparebycoord)
     return analyzer
 
 
@@ -72,8 +76,9 @@ def AddAnAccident(analyzer, EachAccident):
     """
     """
     lt.addLast(analyzer['accidents'], EachAccident)
-    updateDateIndex(analyzer['dateIndex'], EachAccident)
+    #updateDateIndex(analyzer['dateIndex'], EachAccident)
     #updateTimeIndex(analyzer["hourIndex"], EachAccident)
+    updateCoordIndex(analyzer["coordIndex"],EachAccident)
     return analyzer
 
 
@@ -96,6 +101,20 @@ def updateDateIndex(map, EachAccident):
         datentry = me.getValue(entry)
     addDate(datentry,EachAccident)
     return map
+def updateCoordIndex(map,EachAccident):
+    occurredCoord ={"lat":float(EachAccident["Start_Lat"]),"lon":float(EachAccident["Start_Lng"])}
+    entry=om.get(map,occurredCoord)
+    if entry is None:
+        coordentry =newDataEntryBono(EachAccident)
+        om.put(map,occurredCoord,coordentry)
+    else:
+        coordentry=me.getValue(entry)
+    addCoord(coordentry,EachAccident)
+    return map
+def addCoord(coordentry,accident):
+    lst=coordentry["lst"]
+    lt.addLast(lst,accident)
+
 def updateTimeIndex(map,EachAccident):
     """Si no se encuentra creado un nodo para esa Tiempos Hora Minuto en el arbol
     se crea y se actualiza el indice de tipos de accidentes
@@ -144,7 +163,10 @@ def newDataEntry(accident):
     m.put(entry['StateIndex'],accident["State"],accidents)
     entry['lstAccidents'] = lt.newList('SINGLE_LINKED', compareDates)
     return entry
-
+def newDataEntryBono(accident):
+    entry={"lst":None}
+    entry["lst"]=lt.newList("SINGLE_LINKED",comparebycoord)
+    return entry
 
 
 
@@ -164,26 +186,49 @@ def crimesSize(analyzer):
 def indexHeight(analyzer):
     """
     """
-    return om.height(analyzer['dateIndex'])
+    return om.height(analyzer["coordIndex"])
 
 def indexSize(analyzer):
     """
     """
-    return om.size(analyzer['dateIndex'])
+    return om.size(analyzer["coordIndex"])
 
 def minKey(analyzer):
     """
     """
-    return om.minKey(analyzer['dateIndex'])
+    return om.minKey(analyzer["coordIndex"])
 
 def maxKey(analyzer):
     """
     """
-    return om.maxKey(analyzer['dateIndex'])
+    return om.maxKey(analyzer["coordIndex"])
 
 # ==============================
 # Funciones de Requerimientos
 # ==============================
+def bono(analyzer,coord,distance):
+    rbt=analyzer['coordIndex']
+    values = {"list":None}
+    values["list"]=lt.newList('SINGLELINKED', rbt['cmpfunction'])
+    print(lat(-distance,float(coord["lat"])))
+    print(lat(distance,float(coord["lat"])))
+    values = valuesRangebono(rbt['root'], lat(-distance,float(coord["lat"])), lat(distance,float(coord["lat"])), values,coord,distance)
+    return values
+def valuesRangebono(root, keylo, keyhi, values,coord,distance):
+    if (root is not None):
+        y=float((root["key"]["lat"]))
+        z=float(root["key"]["lon"])
+        x=float(coord["lat"])
+        w=float(coord["lon"])
+        if (root["key"]["lat"] > keylo):
+            valuesRangebono(root['left'], keylo, keyhi, values,coord,distance)
+        if (haversine(z,y,w,x)<=distance):
+            print(haversine(z,y,w,x))
+            print(root["key"])
+            lt.addLast(values["list"],root["key"])
+        if (root["key"]["lat"] < keyhi):
+            valuesRangebono(root['right'], keylo, keyhi, values,coord,distance)
+    return values
 
 def getAccidentsByDate(analyzer,date):
     accident = om.get(analyzer["dateIndex"],date)
@@ -377,4 +422,30 @@ def CompareAccidentsState(accident1, accident2):
     else:
         return -1
 
+def comparebycoord(coord1,coord2):
+    if coord1["lat"]==coord2["lat"]:
+        return 0
+    if coord1["lat"]>coord2["lat"]:
+        return 1
+    else:
+        return -1
+def haversine(lon1, lat1, lon2, lat2):
+    lon1=radians(lon1)
+    lat1=radians(lat1)
+    lon2=radians(lon2)   
+    lat2=radians(lat2)
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 
+    return c * r
+def lat(d,lat1):
+    R = 6371 #Radius of the Earth
+    brng =0 #Bearing is 90 degrees converted to radians.
+    lat1 =radians(lat1) #Current lat point converted to radians
+    lat2 = asin( sin(lat1)*cos(d/R) +
+         cos(lat1)*sin(d/R)*cos(brng))
     
+    lat2 =degrees(lat2)
+    return lat2

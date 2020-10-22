@@ -81,7 +81,16 @@ def getAccidentsByState (analizer,inicialDate, finalDate):
     return model.getAccidentsByState (analizer,inicialDate.date(),finalDate.date())
 
 #↓↓↓ Requerimiento 2 ↓↓↓
-
+def bono(analyzer,lat,lon ,distancia):
+    coord={"lat":None,
+            "lon":None}
+    print("----------------------")
+    print(lat)
+    print(lon)
+    print("----------------------")
+    coord["lat"]=(lat)
+    coord["lon"]=(lon)
+    return model.bono(analyzer,coord,float(distancia))
 
 def getAccidentsBefore(analyzer, initialDate, finalDate):
     initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')

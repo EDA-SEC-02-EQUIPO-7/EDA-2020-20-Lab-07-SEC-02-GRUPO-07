@@ -38,7 +38,7 @@ operación seleccionada.
 # ___________________________________________________
 
 
-AccidentsFile = "us_accidents_small.csv"
+AccidentsFile = "us_accidents_dis_2016.csv"
 
 # ___________________________________________________
 #  Menu principal
@@ -55,7 +55,8 @@ def printMenu():
     print("4- Requerimento 2")
     print("5- Requerimento 3")
     print("6- Conocer el estado con más accidentes en un rango de fechas")
-    print("grupal 1")
+    print("7-grupal 1")
+    print("8-bono")
     print("0- Salir")
     print("*******************************************")
 
@@ -124,7 +125,12 @@ while True:
         finalDate = input("Escriba la fecha final en formato (AAAA-MM-DD): ")
         accidents = controller.getAccidentsBytime(cont,initial,final)
         #print (("El estado con el mayor numero de accidentes ocurridos entre {} y {} son {}".format(initialDate,finalDate,accidents)))
-
+    elif int(inputs[0]) == 8:
+        print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
+        lat = input("Escriba latitud: ")
+        lon = input("Escriba longitud): ")
+        distancia=input("Escriba radio): ")
+        accidents = controller.bono(cont,lat,lon,distancia)
     else:
         sys.exit(0)
 sys.exit(0)
