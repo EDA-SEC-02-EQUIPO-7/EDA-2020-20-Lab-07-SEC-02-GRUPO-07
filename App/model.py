@@ -76,8 +76,8 @@ def AddAnAccident(analyzer, EachAccident):
     """
     """
     lt.addLast(analyzer['accidents'], EachAccident)
-    #updateDateIndex(analyzer['dateIndex'], EachAccident)
-    #updateTimeIndex(analyzer["hourIndex"], EachAccident)
+    updateDateIndex(analyzer['dateIndex'], EachAccident)
+    updateTimeIndex(analyzer["hourIndex"], EachAccident)
     updateCoordIndex(analyzer["coordIndex"],EachAccident)
     return analyzer
 
@@ -121,11 +121,14 @@ def updateTimeIndex(map,EachAccident):
     """
     occurreddate = EachAccident['Start_Time'] 
     AccidentDate = datetime.datetime.strptime(occurreddate,  '%Y-%m-%d %H:%M:%S')
-    print(AccidentDate.time())
-    entry = om.get(map, AccidentDate.date())
+    entry = om.get(map, AccidentDate.time())
+    #print(AccidentDate.minute)
+    AccidentDate=AccidentDate.replace(second=0)
+    AccidentDate=compareminutes(AccidentDate)
+
     if entry is None:
         datentry = newDataEntry(EachAccident)
-        om.put(map, AccidentDate.date(), datentry)
+        om.put(map, AccidentDate.time(), datentry)
     else:
         datentry = me.getValue(entry)
     addDate(datentry,EachAccident)
@@ -186,22 +189,22 @@ def crimesSize(analyzer):
 def indexHeight(analyzer):
     """
     """
-    return om.height(analyzer["coordIndex"])
+    return om.height(analyzer["hourIndex"])
 
 def indexSize(analyzer):
     """
     """
-    return om.size(analyzer["coordIndex"])
+    return om.size(analyzer["hourIndex"])
 
 def minKey(analyzer):
     """
     """
-    return om.minKey(analyzer["coordIndex"])
+    return om.minKey(analyzer["dateIndex"])
 
 def maxKey(analyzer):
     """
     """
-    return om.maxKey(analyzer["coordIndex"])
+    return om.maxKey(analyzer["hourIndex"])
 
 # ==============================
 # Funciones de Requerimientos
@@ -323,15 +326,15 @@ def getAccidentsRange(analyzer, keylo, keyhi):
     values["map"]=m.newMap(numelements=10,
                                      maptype='PROBING',
                                      comparefunction=CompareAccidentsState)
-    values = valuesRange(rbt['root'], keylo, keyhi, values,
+    values = valuesRangeA(rbt['root'], keylo, keyhi, values,
                                 rbt['cmpfunction'])
     return values
-def valuesRange(root, keylo, keyhi, values, cmpfunction):
+def valuesRangeA(root, keylo, keyhi, values, cmpfunction):
     if (root is not None):
         complo = cmpfunction(keylo, root['key'])
         comphi = cmpfunction(keyhi, root['key'])
         if (complo < 0):
-            valuesRange(root['left'], keylo, keyhi, values,
+            valuesRangeA(root['left'], keylo, keyhi, values,
                         cmpfunction)
         if ((complo <= 0) and (comphi >= 0)):
             lt.addLast(values["list"], root['value'])
@@ -353,7 +356,7 @@ def valuesRange(root, keylo, keyhi, values, cmpfunction):
                     values["mayor"]=par
                     values["category"]=me.getKey(entry)
         if (comphi > 0):
-            valuesRange(root['right'], keylo, keyhi, values,
+            valuesRangeA(root['right'], keylo, keyhi, values,
                         cmpfunction)
     return values
     
@@ -395,16 +398,19 @@ def compareHour(hour1, hour2):
         return 1
     else:
         return -1
-def compareminutes(min, hour):
-    if min >= 0 and min<15:
-        min=0
-    if min>=15 and min<30:
-        min=30
-    if min>=30 and min<45:
-        min=30
-    if min>=45 and min<=60:
-        min=0
-        #hour +=1
+def compareminutes(hora):
+    if hora.minute>=0 and hora.minute<15:
+        hora=hora.replace(minute=0)
+    if hora.minute>=15 and hora.minute<30:
+        hora=hora.replace(minute=30)
+    if hora.minute>=30 and hora.minute<45:
+        hora=hora.replace(minute=30)
+    if hora.minute>=45 and hora.minute<=60:
+        hora=hora.replace(minute=0)
+        x=hora.hour+1
+        x%=24
+        hora=hora.replace(hour=x)
+    return hora
     
 
 

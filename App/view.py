@@ -121,8 +121,8 @@ while True:
         
     elif int(inputs[0]) == 7:
         print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
-        initialDate = input("Escriba la fecha inicial en formato (AAAA-MM-DD): ")
-        finalDate = input("Escriba la fecha final en formato (AAAA-MM-DD): ")
+        initial = input("Escriba la fecha inicial en formato (AAAA-MM-DD): ")
+        final = input("Escriba la fecha final en formato (AAAA-MM-DD): ")
         accidents = controller.getAccidentsBytime(cont,initial,final)
         #print (("El estado con el mayor numero de accidentes ocurridos entre {} y {} son {}".format(initialDate,finalDate,accidents)))
     elif int(inputs[0]) == 8:
