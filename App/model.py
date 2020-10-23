@@ -56,7 +56,7 @@ def newAnalyzer():
     analyzer['accidents'] = lt.newList('SINGLE_LINKED', compareIds) #Creo que sería mejor array, pero si trabajamos con todos los datos son > 1 millon, entonces perdimos
     analyzer['dateIndex'] = om.newMap(omaptype='',
                                       comparefunction=compareDates)
-    analyzer["hourIndex"]= om.newMap(omaptype='',
+    analyzer["timeIndex"]= om.newMap(omaptype='',
                                       comparefunction=compareHour)
     analyzer["coordIndex"]= om.newMap(omaptype='',
                                       comparefunction=comparebycoord)
@@ -77,7 +77,7 @@ def AddAnAccident(analyzer, EachAccident):
     """
     lt.addLast(analyzer['accidents'], EachAccident)
     updateDateIndex(analyzer['dateIndex'], EachAccident)
-    updateTimeIndex(analyzer["hourIndex"], EachAccident)
+    updateTimeIndex(analyzer["timeIndex"], EachAccident)
     updateCoordIndex(analyzer["coordIndex"],EachAccident)
     return analyzer
 
@@ -101,6 +101,8 @@ def updateDateIndex(map, EachAccident):
         datentry = me.getValue(entry)
     addDate(datentry,EachAccident)
     return map
+
+
 def updateCoordIndex(map,EachAccident):
     occurredCoord ={"lat":float(EachAccident["Start_Lat"]),"lon":float(EachAccident["Start_Lng"])}
     entry=om.get(map,occurredCoord)
@@ -115,23 +117,23 @@ def addCoord(coordentry,accident):
     lst=coordentry["lst"]
     lt.addLast(lst,accident)
 
+
+
 def updateTimeIndex(map,EachAccident):
     """Si no se encuentra creado un nodo para esa Tiempos Hora Minuto en el arbol
     se crea y se actualiza el indice de tipos de accidentes
     """
     occurreddate = EachAccident['Start_Time'] 
-    AccidentDate = datetime.datetime.strptime(occurreddate,  '%Y-%m-%d %H:%M:%S')
-    entry = om.get(map, AccidentDate.time())
-    #print(AccidentDate.minute)
-    AccidentDate=AccidentDate.replace(second=0)
-    AccidentDate=compareminutes(AccidentDate)
-
+    AccidentTime= datetime.datetime.strptime(occurreddate,  '%Y-%m-%d %H:%M:%S')
+    AccidentTime=AccidentTime.replace(second=0)
+    AccidentTime=compareTime(AccidentTime)
+    entry = om.get(map, AccidentTime.time())
     if entry is None:
-        datentry = newDataEntry(EachAccident)
-        om.put(map, AccidentDate.time(), datentry)
+        datentry = newDataEntrySevetiry(EachAccident,AccidentTime)
+        om.put(map, AccidentTime.time(), datentry)
     else:
         datentry = me.getValue(entry)
-    addDate(datentry,EachAccident)
+    addTime(datentry,EachAccident)
     return map
 
 
@@ -151,6 +153,22 @@ def addDate(datentry,accident):
         m.put(datentry['StateIndex'],accident["State"],accidents)
         lt.addLast(accidents,accident)
 
+def addTime(datentry,accident):
+    """
+    Agrega un la Hora  de un accidente y su ID al igual que un accidente 
+    a la lista por Severidad
+    """
+    lst = datentry['lstAccidents']
+    lt.addLast(lst,accident["ID"])
+    existe = m.get(datentry['SeverityIndex'],accident["Severity"])
+    if existe is not None:
+        lst = me.getValue(existe)
+        lt.addLast(lst,accident["ID"])
+    else:
+        accidents = lt.newList('SINGLE_LINKED', compareHour)
+        m.put(datentry['SeverityIndex'],accident["Severity"],accidents)
+        lt.addLast(accidents,accident["ID"])
+
 def newDataEntry(accident):
     """
     Crea una entrada en el indice por fechas, es decir en el arbol
@@ -166,6 +184,23 @@ def newDataEntry(accident):
     m.put(entry['StateIndex'],accident["State"],accidents)
     entry['lstAccidents'] = lt.newList('SINGLE_LINKED', compareDates)
     return entry
+
+def newDataEntrySevetiry(accident,occurredtime):
+    """
+    Crea una entrada en el indice por fechas, es decir en el arbol
+    binario.
+    Se crea el indice por estado, por cada estado hay una lista 'SINGLE_LINKED'
+    que guarda el "ID" de cada accidente en ese estado 
+    """
+    entry = { "SeverityIndex": None, 'lstAccidents': None, "occurredtime": occurredtime}
+    entry['SeverityIndex'] = m.newMap(numelements=12,
+                                     maptype='PROBING',
+                                     comparefunction=CompareAccidentsState)
+    accidents = lt.newList('SINGLE_LINKED', compareHour)
+    m.put(entry['SeverityIndex'],accident["Severity"],accidents)
+    entry['lstAccidents'] = lt.newList('SINGLE_LINKED', compareHour)
+    return entry
+
 def newDataEntryBono(accident):
     entry={"lst":None}
     entry["lst"]=lt.newList("SINGLE_LINKED",comparebycoord)
@@ -189,12 +224,12 @@ def crimesSize(analyzer):
 def indexHeight(analyzer):
     """
     """
-    return om.height(analyzer["hourIndex"])
+    return om.height(analyzer["dateIndex"])
 
 def indexSize(analyzer):
     """
     """
-    return om.size(analyzer["hourIndex"])
+    return om.size(analyzer["dateIndex"])
 
 def minKey(analyzer):
     """
@@ -204,11 +239,12 @@ def minKey(analyzer):
 def maxKey(analyzer):
     """
     """
-    return om.maxKey(analyzer["hourIndex"])
+    return om.maxKey(analyzer["dateIndex" ])
 
 # ==============================
 # Funciones de Requerimientos
 # ==============================
+
 def bono(analyzer,coord,distance):
     rbt=analyzer['coordIndex']
     values = {"list":None}
@@ -217,6 +253,8 @@ def bono(analyzer,coord,distance):
     print(lat(distance,float(coord["lat"])))
     values = valuesRangebono(rbt['root'], lat(-distance,float(coord["lat"])), lat(distance,float(coord["lat"])), values,coord,distance)
     return values
+
+
 def valuesRangebono(root, keylo, keyhi, values,coord,distance):
     if (root is not None):
         y=float((root["key"]["lat"]))
@@ -232,6 +270,7 @@ def valuesRangebono(root, keylo, keyhi, values,coord,distance):
         if (root["key"]["lat"] < keyhi):
             valuesRangebono(root['right'], keylo, keyhi, values,coord,distance)
     return values
+
 
 def getAccidentsByDate(analyzer,date):
     accident = om.get(analyzer["dateIndex"],date)
@@ -271,21 +310,43 @@ def getAccidentsByState(analyzer,initialDate,finalDate):
         stateIterator = it.newIterator(stateList)
         while (it.hasNext(stateIterator)):
             statename = it.next(stateIterator)
-            pairDate = m.get(stateMapDate,statename)
-            pair = m.get(stateMap,statename)
-            numberAccidents =  me.getValue(pairDate)
-            numberAccidents =  lt.size(numberAccidents)
-            updateAccidets = me.getValue(pair)
-            updateAccidets = updateAccidets + numberAccidents
+            numberAccidents = lt.size(me.getValue(m.get(stateMapDate,statename)))
+            updateAccidets = me.getValue(m.get(stateMap,statename)) + numberAccidents
             m.put(stateMap,statename, updateAccidets)
             if updateAccidets > comparador:
                 mayorState = statename
                 comparador = updateAccidets
     return [mayor, mayorState]
 
+def getAccidentsByTime(analyzer,initialTime,finalTime):
+    accidents = om.values(analyzer['timeIndex'],initialTime,finalTime)
+    lstiterator = it.newIterator(accidents)
+    SeverityMap =  m.newMap(numelements=8,
+                                     maptype='PROBING',
+                                     comparefunction=CompareAccidentsState)
+    for i in range(1,5):
+        m.put(SeverityMap,str(i),0)
+    while (it.hasNext(lstiterator)):
+        eachtime = it.next(lstiterator)
+        SeverityMapEachTime = eachtime["SeverityIndex"]
+        accidents = eachtime['lstAccidents']
+        accidents = lt.size(accidents)
+        SeverityList = m.keySet(SeverityMapEachTime)
+        SeverityIterator = it.newIterator(SeverityList)
+        while (it.hasNext(SeverityIterator)):
+            severityRange = it.next(SeverityIterator)
+            ValueEachtime = lt.size(me.getValue(m.get(SeverityMapEachTime,severityRange)))
+            ValueSeverity = (me.getValue(m.get(SeverityMap,severityRange)))
+            numberAccidents = ValueEachtime + ValueSeverity
+            m.put(SeverityMap,severityRange,numberAccidents)
+    return SeverityMap
 
-
-
+def getAccidentsBySeverity(Map,SeverityIndex):
+    if m.get(Map,SeverityIndex) is not None:
+        numberAccidents = me.getValue(m.get(Map,SeverityIndex))
+    else:
+        numberAccidents = 0
+    return numberAccidents
 
 
 #↓↓↓ Requerimiento 2 ↓↓↓
@@ -314,9 +375,9 @@ def getAccidentsBefore(analyzer, initialDate, finalDate):
 #requerimiento grupal
 def getAccidentsbytime(analyzer,initial,final):
     return  None
-
+ 
 def getAccidentsRange(analyzer, keylo, keyhi):
-    rbt=analyzer['dateIndex']
+    rbt =analyzer['dateIndex']
     values = {"list":None,
                 "map":None,
                 "mayor":0,
@@ -329,6 +390,7 @@ def getAccidentsRange(analyzer, keylo, keyhi):
     values = valuesRangeA(rbt['root'], keylo, keyhi, values,
                                 rbt['cmpfunction'])
     return values
+
 def valuesRangeA(root, keylo, keyhi, values, cmpfunction):
     if (root is not None):
         complo = cmpfunction(keylo, root['key'])
@@ -398,7 +460,7 @@ def compareHour(hour1, hour2):
         return 1
     else:
         return -1
-def compareminutes(hora):
+def compareTime(hora):
     if hora.minute>=0 and hora.minute<15:
         hora=hora.replace(minute=0)
     if hora.minute>=15 and hora.minute<30:
@@ -411,15 +473,11 @@ def compareminutes(hora):
         x%=24
         hora=hora.replace(hour=x)
     return hora
+
     
 
 
-
 def CompareAccidentsState(accident1, accident2):
-    """
-    Compara dos ids de libros, id es un identificador
-    y entry una pareja llave-valor
-    """
     offense = me.getKey(accident2)
     if (accident1 == offense):
         return 0
@@ -435,6 +493,8 @@ def comparebycoord(coord1,coord2):
         return 1
     else:
         return -1
+        
+
 def haversine(lon1, lat1, lon2, lat2):
     lon1=radians(lon1)
     lat1=radians(lat1)
@@ -446,6 +506,7 @@ def haversine(lon1, lat1, lon2, lat2):
     c = 2 * asin(sqrt(a)) 
     r = 6371 
     return c * r
+
 def lat(d,lat1):
     R = 6371 #Radius of the Earth
     brng =0 #Bearing is 90 degrees converted to radians.
@@ -455,3 +516,4 @@ def lat(d,lat1):
     
     lat2 =degrees(lat2)
     return lat2
+

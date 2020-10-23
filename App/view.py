@@ -38,7 +38,7 @@ operación seleccionada.
 # ___________________________________________________
 
 
-AccidentsFile = "us_accidents_dis_2016.csv"
+AccidentsFile = "us_accidents_small.csv"
 
 # ___________________________________________________
 #  Menu principal
@@ -52,11 +52,11 @@ def printMenu():
     print("1- Inicializar Analizador")
     print("2- Cargar información de accidentes")
     print("3- Conocer accidentes en una fecha especicifica")
-    print("4- Requerimento 2")
-    print("5- Requerimento 3")
-    print("6- Conocer el estado con más accidentes en un rango de fechas")
-    print("7-grupal 1")
-    print("8-bono")
+    print("4- Conocer los accidentes anteriores a una fecha especifica")
+    print("5- Conocer accidnetes en un rango de fechas")
+    print("6- Conocer el estado con mas accidentes y la fecha con mas accidentes en un rango")
+    print("7- Conocer accidentes en un rango de horas")
+    print("8- Conocer accidentes en un rango")
     print("0- Salir")
     print("*******************************************")
 
@@ -91,28 +91,23 @@ while True:
         date = input("Escriba la fecha en formato (AAAA-MM-DD): ")
         accidents = controller.getAccidentsByDate(cont,date)
         print (("El numero de accidentes ocurridos en {} son {}".format(date,accidents)))
-        
-    elif int(inputs[0]) == 3:
-        print("\nBuscando crimenes en una fecha especifica: ")
-        date = input("Escriba la fecha en formato (AAAA-MM-DD): ")
-        accidents = controller.getAccidentsByDate(cont,date)
-        print (("El numero de accidentes ocurridos en {} son {}".format(date,accidents)))
-        
+                
     # ↓↓↓ Requerimiento 2 - Cristhian Perdomo ↓↓↓    
     elif int(inputs[0]) == 4:
         print("\nPara esta búsqueda se conocerá el total de accidentes ocurridos antes de una fecha, así como la fecha que más accidentes ha reportado:")
         PreviousTo = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
         total = controller.getAccidentsBefore(cont, menor, PreviousTo)
         print ("\nEl total de accidentes registrados antes de {} es: {}.\n*Durante este pediodo, la fecha que más registro accidentes fue {}, con {} en total." .format(PreviousTo, str(total["totalAccidents"]), str(total["FechaAccidentada"]), str(total["CantidadPorFecha"])))
+   
     elif int(inputs[0]) == 5:
-        print("\nPara esta búsqueda se conocerá el total de accidentes ocurridos antes de una fecha, así como la fecha que más accidentes ha reportado:")
+        print"\nBuscando accidentes en un rango de fechas: ")
         menor = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
         PreviousTo = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
         total = controller.getAccidentsRange(cont, menor, PreviousTo)
         print(str(total["mayor"])+" "+total["category"])
 
     elif int(inputs[0]) == 6:
-        print("\nBuscando accidentes en un rango de fechas: ")
+        print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
         initialDate = input("Escriba la fecha inicial en formato (AAAA-MM-DD): ")
         finalDate = input("Escriba la fecha final en formato (AAAA-MM-DD): ")
         accidents = controller.getAccidentsByState(cont,initialDate,finalDate)
@@ -120,17 +115,31 @@ while True:
         print ("La fecha con mayor numero de accidentes entre {} y {} es {}".format(initialDate,finalDate,accidents[0]))
         
     elif int(inputs[0]) == 7:
-        print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
-        initial = input("Escriba la fecha inicial en formato (AAAA-MM-DD): ")
-        final = input("Escriba la fecha final en formato (AAAA-MM-DD): ")
-        accidents = controller.getAccidentsBytime(cont,initial,final)
-        #print (("El estado con el mayor numero de accidentes ocurridos entre {} y {} son {}".format(initialDate,finalDate,accidents)))
+        print("\nBuscando accidentes en un rango de Horas: ")
+        initialDate = input("Escriba la fecha inicial en formato (HH:MM): ")
+        finalDate = input("Escriba la fecha final en formato (HH:MM): ")
+        accidents = controller.getAccidentsByTime(cont,initialDate,finalDate)
+        grado1 = controller.getAccidentsBySeverity(accidents,"1")
+        grado2 = controller.getAccidentsBySeverity(accidents,"2")
+        grado3 = controller.getAccidentsBySeverity(accidents,"3")
+        grado4 = controller.getAccidentsBySeverity(accidents,"4")
+        print ("\nAccidentes de Primer Grado")
+        print (grado1)
+        print ("Accidentes de Segundo Grado")
+        print (grado2)
+        print ("Accidentes de Tercer Grado")
+        print (grado3)
+        print ("Accidentes de Cuarto Grado")
+        print (grado4)
+        print ("El promedio de accidentes ocurridos entre las {} y las {} es de {}{}".format(initialDate,finalDate,round(((grado1 + grado2 + grado3 + grado4)/controller.crimesSize(cont))*100,2),"%"))
+
     elif int(inputs[0]) == 8:
-        print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
+        print("\nBuscando accidentes dentro del radio: ")
         lat = input("Escriba latitud: ")
         lon = input("Escriba longitud): ")
         distancia=input("Escriba radio): ")
         accidents = controller.bono(cont,lat,lon,distancia)
+
     else:
         sys.exit(0)
 sys.exit(0)

@@ -100,6 +100,17 @@ def getAccidentsRange(analyzer, initialDate, finalDate):
     initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
     finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
     return model.getAccidentsRange(analyzer, initialDate.date(), finalDate.date())
+
+def getAccidentsByTime (analyzer, initialTime, finalTime):
+    initialTime = datetime.datetime.strptime(initialTime, '%H:%M')
+    initialTime = model.compareTime(initialTime)
+    finalTime = datetime.datetime.strptime(finalTime, '%H:%M')
+    finalTime = model.compareTime(finalTime)
+    return model.getAccidentsByTime(analyzer, initialTime.time(), finalTime.time())
+
+def getAccidentsBySeverity(SeverityMap, SeverityIndex):
+    return model.getAccidentsBySeverity(SeverityMap,SeverityIndex)
+    
 # =================================
 #  Funciones para consultas RAPIDAS
 #  Funciones para consultas RAPIDAS
