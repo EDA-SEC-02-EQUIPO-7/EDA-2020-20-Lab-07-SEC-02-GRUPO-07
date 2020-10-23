@@ -38,7 +38,10 @@ operación seleccionada.
 # ___________________________________________________
 
 
-AccidentsFile = "us_accidents_dis_2016.csv"
+AccidentsFile1 = "us_accidents_dis_2016.csv"
+AccidentsFile2 = "us_accidents_dis_2017.csv"
+AccidentsFile3 = "us_accidents_dis_2018.csv"
+AccidentsFile4 = "us_accidents_dis_2019.csv"
 
 # ___________________________________________________
 #  Menu principal
@@ -76,8 +79,14 @@ while True:
 
     elif int(inputs[0]) == 2:
         print("\nCargando información de accidentes ....")
-        controller.loadData(cont, AccidentsFile)
-        #print (cont['accidents']['first']["info"]) 
+        controller.loadData(cont, AccidentsFile1)
+        print("cargado 2016")
+        controller.loadData(cont, AccidentsFile2)
+        print("cargado 2017")
+        controller.loadData(cont, AccidentsFile3)
+        print("cargado 2018")
+        controller.loadData(cont, AccidentsFile4)
+        print("cargado 2019")
         print('Acidentes cargados: ' + str(controller.crimesSize(cont)))
         print('Altura del arbol: ' + str(controller.indexHeight(cont)))
         print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
@@ -98,6 +107,7 @@ while True:
         PreviousTo = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
         total = controller.getAccidentsBefore(cont, menor, PreviousTo)
         print ("\nEl total de accidentes registrados antes de {} es: {}.\n*Durante este pediodo, la fecha que más registro accidentes fue {}, con {} en total." .format(PreviousTo, str(total["totalAccidents"]), str(total["FechaAccidentada"]), str(total["CantidadPorFecha"])))
+    #santiago
     elif int(inputs[0]) == 5:
         print("\nBuscando accidentes en un rango de fechas: ")
         menor = input("Ingrese una fecha inferior para consultar (YYYY-MM-DD): ")
@@ -106,7 +116,7 @@ while True:
         print("Entre "+menor+" y "+PreviousTo+" ocurrieron "+str(lt.size(total["list"]))+" accidentes")
         print("El tipo de severidad más comun fue "+total["category"])
 
-
+    #alelejandra
     elif int(inputs[0]) == 6:
         print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
         initialDate = input("Escriba la fecha inicial en formato (AAAA-MM-DD): ")

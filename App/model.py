@@ -267,9 +267,6 @@ def bono(analyzer,coord,distance):
     m.put(values["map"],4,0)
     m.put(values["map"],5,0)
     m.put(values["map"],6,0)
-    print(lat(-distance,float(coord["lat"])))
-    print(lat(distance,float(coord["lat"])))
-    print("------------------------")
     values = valuesRangebono(rbt['root'], lat(-distance,float(coord["lat"])), lat(distance,float(coord["lat"])), values,coord,distance)
     values["lunes"]=me.getValue(m.get(values["map"],0))
     values["martes"]=me.getValue(m.get(values["map"],1))
@@ -291,7 +288,6 @@ def valuesRangebono(root, keylo, keyhi, values,coord,distance):
         if (root["key"]["lat"] > keylo):
             valuesRangebono(root['left'], keylo, keyhi, values,coord,distance)
         if (haversine(z,y,w,x)<=distance and root["key"]["lat"] > keylo and root["key"]["lat"] < keyhi):
-            print(haversine(z,y,w,x))
             lstiterator=it.newIterator(root["value"]["lst"])
             while it.hasNext(lstiterator):
                 eachaccident=it.next(lstiterator)
