@@ -38,7 +38,7 @@ operación seleccionada.
 # ___________________________________________________
 
 
-AccidentsFile = "us_accidents_small.csv"
+AccidentsFile = "us_accidents_dis_2016.csv"
 
 # ___________________________________________________
 #  Menu principal
@@ -98,13 +98,14 @@ while True:
         PreviousTo = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
         total = controller.getAccidentsBefore(cont, menor, PreviousTo)
         print ("\nEl total de accidentes registrados antes de {} es: {}.\n*Durante este pediodo, la fecha que más registro accidentes fue {}, con {} en total." .format(PreviousTo, str(total["totalAccidents"]), str(total["FechaAccidentada"]), str(total["CantidadPorFecha"])))
-   
     elif int(inputs[0]) == 5:
-        print"\nBuscando accidentes en un rango de fechas: ")
-        menor = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
-        PreviousTo = input("Ingrese una fecha para consultar (YYYY-MM-DD): ")
+        print("\nBuscando accidentes en un rango de fechas: ")
+        menor = input("Ingrese una fecha inferior para consultar (YYYY-MM-DD): ")
+        PreviousTo = input("Ingrese una fecha superior para consultar (YYYY-MM-DD): ")
         total = controller.getAccidentsRange(cont, menor, PreviousTo)
-        print(str(total["mayor"])+" "+total["category"])
+        print("Entre "+menor+" y "+PreviousTo+" ocurrieron "+str(lt.size(total["list"]))+" accidentes")
+        print("El tipo de severidad más comun fue "+total["category"])
+
 
     elif int(inputs[0]) == 6:
         print("\nBuscando el estado con mas accidentes en un rango de fechas: ")
@@ -139,6 +140,15 @@ while True:
         lon = input("Escriba longitud): ")
         distancia=input("Escriba radio): ")
         accidents = controller.bono(cont,lat,lon,distancia)
+        print("La cantidad de accidendes presentados en el radio inscrito fue de "+str(lt.size(accidents["list"])))
+        print("En el lunes se presentaron "+str(accidents["lunes"]))
+        print("En el Martes se presentaron "+str(accidents["martes"]))
+        print("En el Miercoles se presentaron "+str(accidents["miercoles"]))
+        print("En el Jueves se presentaron "+str(accidents["jueves"]))
+        print("En el Viernes se presentaron "+str(accidents["viernes"]))
+        print("En el Sabado se presentaron "+str(accidents["sabado"]))
+        print("En el Domingo se presentaron "+str(accidents["domingo"]))
+        
 
     else:
         sys.exit(0)

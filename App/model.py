@@ -247,11 +247,38 @@ def maxKey(analyzer):
 
 def bono(analyzer,coord,distance):
     rbt=analyzer['coordIndex']
-    values = {"list":None}
+    values = {"list":None,
+                "map":None,
+                "lunes":None,
+                "martes":None,
+                "miercoles":None,
+                "jueves":None,
+                "viernes":None,
+                "sabado":None,
+                "domingo":None}
     values["list"]=lt.newList('SINGLELINKED', rbt['cmpfunction'])
+    values["map"]=m.newMap(numelements=14,
+                                     maptype='PROBING',
+                                     comparefunction=CompareAccidentsWeek)
+    m.put(values["map"],0,0)
+    m.put(values["map"],1,0)
+    m.put(values["map"],2,0)
+    m.put(values["map"],3,0)
+    m.put(values["map"],4,0)
+    m.put(values["map"],5,0)
+    m.put(values["map"],6,0)
     print(lat(-distance,float(coord["lat"])))
     print(lat(distance,float(coord["lat"])))
+    print("------------------------")
     values = valuesRangebono(rbt['root'], lat(-distance,float(coord["lat"])), lat(distance,float(coord["lat"])), values,coord,distance)
+    values["lunes"]=me.getValue(m.get(values["map"],0))
+    values["martes"]=me.getValue(m.get(values["map"],1))
+    values["miercoles"]=me.getValue(m.get(values["map"],2))
+    values["jueves"]=me.getValue(m.get(values["map"],3))
+    values["viernes"]=me.getValue(m.get(values["map"],4))
+    values["sabado"]=me.getValue(m.get(values["map"],5))
+    values["domingo"]=me.getValue(m.get(values["map"],6))
+    
     return values
 
 
@@ -265,8 +292,16 @@ def valuesRangebono(root, keylo, keyhi, values,coord,distance):
             valuesRangebono(root['left'], keylo, keyhi, values,coord,distance)
         if (haversine(z,y,w,x)<=distance and root["key"]["lat"] > keylo and root["key"]["lat"] < keyhi):
             print(haversine(z,y,w,x))
-            print(root["key"])
-            lt.addLast(values["list"],root["key"])
+            lstiterator=it.newIterator(root["value"]["lst"])
+            while it.hasNext(lstiterator):
+                eachaccident=it.next(lstiterator)
+                lt.addLast(values["list"],eachaccident) 
+                date= datetime.datetime.strptime(eachaccident["Start_Time"],  '%Y-%m-%d %H:%M:%S') 
+                date.date()
+                x=date.weekday()
+                entry=m.get(values["map"],x)
+                val=me.getValue(entry)
+                m.put(values["map"],x ,val+1)
         if (root["key"]["lat"] < keyhi):
             valuesRangebono(root['right'], keylo, keyhi, values,coord,distance)
     return values
@@ -399,13 +434,11 @@ def valuesRangeA(root, keylo, keyhi, values, cmpfunction):
             valuesRangeA(root['left'], keylo, keyhi, values,
                         cmpfunction)
         if ((complo <= 0) and (comphi >= 0)):
-            lt.addLast(values["list"], root['value'])
             lstiterator=it.newIterator(root["value"]["lstAccidents"])
             while it.hasNext(lstiterator):
                 eachaccident=it.next(lstiterator)
-                print(eachaccident["Severity"])
+                lt.addLast(values["list"],eachaccident) 
                 exist=m.contains(values["map"],eachaccident["Severity"] )
-                print(exist)
                 if exist:
                     entry=m.get(values["map"],eachaccident["Severity"])
                     val=me.getValue(entry)
@@ -478,6 +511,14 @@ def compareTime(hora):
 
 
 def CompareAccidentsState(accident1, accident2):
+    offense = me.getKey(accident2)
+    if (accident1 == offense):
+        return 0
+    elif (accident1 > offense):
+        return 1
+    else:
+        return -1
+def CompareAccidentsWeek(accident1, accident2):
     offense = me.getKey(accident2)
     if (accident1 == offense):
         return 0
