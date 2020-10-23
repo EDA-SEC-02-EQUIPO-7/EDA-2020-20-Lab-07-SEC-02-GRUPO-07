@@ -236,6 +236,7 @@ def minKey(analyzer):
     """
     return om.minKey(analyzer["dateIndex"])
 
+
 def maxKey(analyzer):
     """
     """
